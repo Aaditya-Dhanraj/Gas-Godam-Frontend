@@ -8,6 +8,8 @@ import styled from "styled-components";
 import { AccountBox } from "./components/accountBox";
 import { reducer, initialState } from "./Reducers/reducer";
 
+
+
 export const UserContext = createContext();
 
 const AppContainer = styled.div`
@@ -26,6 +28,7 @@ const Routing = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
       dispatch({ type: "USER", payload: user });
+      history.push("/report");
     } else {
       history.push("/login");
     }
@@ -53,9 +56,12 @@ const Routing = () => {
 };
 
 function App() {
+
+
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <UserContext.Provider value={{ state, dispatch }}>
+    
       <BrowserRouter>
         <Routing />
       </BrowserRouter>

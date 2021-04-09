@@ -1,8 +1,9 @@
 // import * as React from "react";
-import React, { Component, useContext } from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import { Link, useHistory } from "react-router-dom";
 import { UserContext } from "../../App";
+import Notification from "../Home/Notification/Notification";
 
 const variants = {
   open: {
@@ -26,6 +27,7 @@ const variants = {
 const colors = ["#FF008C", "#D309E1", "#9C1AFF", "#7700FF", "#4400FF"];
 
 export const MenuItem = ({ i, imgs, names, links }) => {
+
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory();
   const style = { border: `2px solid ${colors[i]}` };
@@ -36,10 +38,6 @@ export const MenuItem = ({ i, imgs, names, links }) => {
         method: "get",
       }).then((result) => {
         console.log(result);
-        // M.toast({
-        //   html: "Logged-Out successfully",
-        //   classes: "#43a047 green darken-1",
-        // });
         localStorage.clear();
         dispatch({ type: "CLEAR" });
         history.push("/login");
@@ -48,40 +46,42 @@ export const MenuItem = ({ i, imgs, names, links }) => {
   }
 
   return (
-    <motion.li
-      variants={variants}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <div className="icon-placeholder" style={style}>
-        <img
-          src={imgs}
-          style={{
-            height: "70%",
-            width: "70%",
-            marginTop: "15%",
-            marginLeft: "15%",
-          }}
-          alt={imgs}
-        />
-      </div>
-      <Link
-        onClick={() => {
-          clickResponse(i);
-        }}
-        to={`/${links}`}
-        className="text-placeholder"
-        style={{
-          border: `2px solid ${colors[i]}`,
-          display: "flex",
-          height: "fit-content",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "max-content",
-        }}
+    <div>
+      <motion.li
+        variants={variants}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
-        {names}
-      </Link>
-    </motion.li>
+        <div className="icon-placeholder" style={style}>
+          <img
+            src={imgs}
+            style={{
+              height: "70%",
+              width: "70%",
+              marginTop: "15%",
+              marginLeft: "15%",
+            }}
+            alt={imgs}
+          />
+        </div>
+        <Link
+          onClick={() => {
+            clickResponse(i);
+          }}
+          to={`/${links}`}
+          className="text-placeholder"
+          style={{
+            border: `2px solid ${colors[i]}`,
+            display: "flex",
+            height: "fit-content",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "max-content",
+          }}
+        >
+          {names}
+        </Link>
+      </motion.li>
+    </div>
   );
 };

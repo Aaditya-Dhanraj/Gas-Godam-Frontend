@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { UserContext } from "../../App";
 import { Link, useHistory } from "react-router-dom";
 import {
@@ -12,7 +12,10 @@ import {
 import { Marginer } from "../marginer";
 import { AccountContext } from "./accountContext";
 
+import Notification from "../Home/Notification/Notification";
+
 function LoginForm(props) {
+  const [noti, setNoti] = useState(false);
   const { switchToSignup, switchToHome } = useContext(AccountContext);
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory();
@@ -43,7 +46,10 @@ function LoginForm(props) {
           localStorage.setItem("jwt", data.token);
           localStorage.setItem("user", JSON.stringify(data.data.user));
           dispatch({ type: "USER", payload: data.data.user });
-          history.push("/report");
+          setNoti(true);
+          setTimeout(() => {
+            history.push("/report");
+          }, 2500);
         } else if (data.status === "Fail") {
           if (data.error) {
             // M.toast({
@@ -61,47 +67,58 @@ function LoginForm(props) {
   };
 
   return (
-    <BoxContainer>
-      <FormContainer>
-        <Input
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            // console.log(email);
+    <div>
+      <Notification
+        type="success"
+        time={2000}
+        message="Logged In Successfully"
+        trigger={noti}
+      />
+      <BoxContainer>
+        <FormContainer>
+          <Input
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              // console.log(email);
+            }}
+            style={{
+              border: "1px solid lightgrey",
+              borderRadius: "5px",
+              marginBottom: "5px",
+            }}
+            type="email"
+            placeholder="Email"
+          />
+          <Input
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              // console.log(password);
+            }}
+            style={{ border: "1px solid lightgrey", borderRadius: "5px" }}
+            type="password"
+            placeholder="Password"
+          />
+        </FormContainer>
+        <Marginer direction="vertical" margin={10} />
+        <MutedLink href="#">Forget your password?</MutedLink>
+        <Marginer direction="vertical" margin="1.6em" />
+        <SubmitButton
+          onClick={() => {
+            sendDataLogin();
           }}
-          style={{
-            border: "1px solid lightgrey",
-            borderRadius: "5px",
-            marginBottom: "5px",
-          }}
-          type="email"
-          placeholder="Email"
-        />
-        <Input
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            // console.log(password);
-          }}
-          style={{ border: "1px solid lightgrey", borderRadius: "5px" }}
-          type="password"
-          placeholder="Password"
-        />
-      </FormContainer>
-      <Marginer direction="vertical" margin={10} />
-      <MutedLink href="#">Forget your password?</MutedLink>
-      <Marginer direction="vertical" margin="1.6em" />
-      <SubmitButton onClick={() => sendDataLogin()} type="submit">
-        Signin
-      </SubmitButton>
-      <Marginer direction="vertical" margin="1em" />
-      <MutedLink >
-        Don't have an accoun?{" "}
-        <BoldLink onClick={switchToSignup}>
-          Signup
-        </BoldLink>
-      </MutedLink>
-    </BoxContainer>
+          type="submit"
+        >
+          Signin
+        </SubmitButton>
+        <Marginer direction="vertical" margin="1em" />
+        <MutedLink>
+          Don't have an accoun?{" "}
+          <BoldLink onClick={switchToSignup}>Signup</BoldLink>
+        </MutedLink>
+      </BoxContainer>
+    </div>
   );
 }
 
