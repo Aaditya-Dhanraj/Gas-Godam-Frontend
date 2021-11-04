@@ -1,59 +1,164 @@
-import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import "./ModalTable.css";
 
-const useStyles = makeStyles({
-  table: {
-    minWidth: 350,
-  },
-});
+import Button from "@material-ui/core/Button";
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
+import Pdf from "react-to-pdf";
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
+import { createRef, useEffect } from "react";
 
-export default function DenseTable() {
-  const classes = useStyles();
+const ref = createRef();
 
+const options = {
+  orientation: "landscape",
+  pages: 2,
+};
+
+const ModalTable = ({ report }) => {
+  useEffect(() => {
+    console.log(report, "report from child");
+  });
+  var showPdf = false;
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} size="small" aria-label="a dense table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
-            </TableRow>
+    <div>
+      <table ref={ref} options={options}>
+        <caption>Date :- {report[0].dailyDate.split("T")[0]}</caption>
+        <caption style={{ textAlign: "end", marginRight: "20px" }}>
+          Rate:- {report[0].rate}
+        </caption>
+        <thead>
+          <tr style={{ wordBreak: "break-word" }}>
+            <th scope="col"></th>
+            <th scope="col">Initial (F)</th>
+            <th scope="col">Import (F)</th>
+            <th scope="col">Initial Total</th>
+            <th scope="col">Export (F)</th>
+            <th scope="col">Total</th>
+            <th scope="col">Refill</th>
+            <th scope="col">SBC</th>
+            <th scope="col">DBC</th>
+            <th scope="col">Final (F)</th>
+            <th scope="col">Initial (E)</th>
+            <th scope="col">Total (E)</th>
+            <th scope="col">Import (E)</th>
+            <th scope="col">Export (E)</th>
+            <th scope="col">Final (E)</th>
+            <th scope="col">Total Amount</th>
+            <th scope="col">Online Payment</th>
+            <th scope="col">Expense</th>
+            <th scope="col">Total Money</th>
+            <th scope="col">SBC</th>
+            <th scope="col">DBC</th>
+            <th scope="col">ToDBC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {report.map((el, key) => (
+            <tr style={{ wordBreak: "break-word" }}>
+              <td
+                style={{ fontWeight: "bolder" }}
+                scope="row"
+                data-label="Showroom"
+              >
+                {el.showRoomName}
+              </td>
+              <td data-label="Initial (F)">{el.filledQuantityInitial}</td>
+              <td data-label="Import (F)">{el.filledIn}</td>
+              <td data-label="Initial Total">{el.initialTotal}</td>
+              <td data-label="Export (F)">{el.filledOut}</td>
+              <td data-label="Total">{el.total}</td>
+              <td data-label="Refill">{el.purchasedTypeRefill}</td>
+              <td data-label="SBC">{el.purchasedTypeSBC}</td>
+              <td data-label="DBC">{el.purchasedTypeDBC}</td>
+              <td data-label="Final (F)">{el.filledQuantityFinal}</td>
+              <td data-label="Initial (E)">{el.emptyQuantityInitial}</td>
+              <td data-label="Total (E)">{el.totalEmpty}</td>
+              <td data-label="Import (E)">{el.emptyIn}</td>
+              <td data-label="Export (E)">{el.exportEmpty}</td>
+              <td data-label="Final (E)">{el.emptyQuantityFinal}</td>
+              <td data-label="Total Amount">{el.totalPayment}</td>
+              <td data-label="Online Payment">{el.moneyTypeOnline}</td>
+              <td data-label="Expense">{el.expense}</td>
+              <td data-label="Total Money">{el.totalMoney}</td>
+              <td data-label="SBC">{el.SVSBC}</td>
+              <td data-label="DBC">{el.SVDBC}</td>
+              <td data-label="ToDBC">{el.SVToDBC}</td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          {report.map((el, key) => (
+            <div>
+              {el.dailyDiscription !== "N/A" ||
+              el.expenseDescription !== "N/A" ? (
+                <div style={{ marginTop: "10px" }}>
+                  {el.dailyDiscription !== "N/A" ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        marginBottom: "10px",
+                        padding: "5px",
+                        minWidth: "26cm",
+                        fontSize: "0.8em",
+                      }}
+                    >
+                      <div>Discription :-</div>
+                      <div>{report[key].dailyDiscription}</div>
+                    </div>
+                  ) : null}
+                  {el.expenseDescription !== "N/A" ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        marginBottom: "10px",
+                        padding: "5px",
+                        minWidth: "26cm",
+                        fontSize: "0.8em",
+                      }}
+                    >
+                      <div>Expense Discription :-</div>
+                      <div>{report[key].expenseDescription}</div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ))}
+          <div
+            style={{
+              fontSize: "0.7em",
+              textAlign: "end",
+              minWidth: "27cm",
+              marginTop: "50px",
+              marginBottom: "5px",
+            }}
+          >
+            Signature
+          </div>
+        </tbody>
+      </table>
+      <Pdf
+        targetRef={ref}
+        filename={`${report[0].dailyDate.split("T")[0]} Report.pdf`}
+        scale={1}
+        options={options}
+        x={6}
+        y={6}
+      >
+        {({ toPdf }) => (
+          <Button
+            color="primary"
+            style={{
+              display: "flex",
+              justifyContent: "centre",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+            onClick={toPdf}
+          >
+            Generate Pdf
+          </Button>
+        )}
+      </Pdf>
+    </div>
   );
-}
+};
+
+export default ModalTable;

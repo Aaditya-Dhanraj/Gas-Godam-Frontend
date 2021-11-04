@@ -23,7 +23,7 @@ export function SignupForm(props) {
   const { state, dispatch } = useContext(UserContext);
 
   const sendDataSignup = () => {
-    fetch("http://127.0.0.1:5000/user/signup", {
+    fetch("https://stormy-retreat-77015.herokuapp.com/user/signup", {
       method: "post",
       headers: {
         "Content-Type": "application/json",

@@ -27,7 +27,6 @@ const variants = {
 const colors = ["#FF008C", "#D309E1", "#9C1AFF", "#7700FF", "#4400FF"];
 
 export const MenuItem = ({ i, imgs, names, links }) => {
-
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory();
   const style = { border: `2px solid ${colors[i]}` };
@@ -77,6 +76,7 @@ export const MenuItem = ({ i, imgs, names, links }) => {
             alignItems: "center",
             justifyContent: "center",
             height: "max-content",
+            padding: "5px",
           }}
         >
           {names}

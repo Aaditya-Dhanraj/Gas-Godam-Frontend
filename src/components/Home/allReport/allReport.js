@@ -2,8 +2,9 @@ import { useEffect, useState, useContext } from "react";
 import arrow from "../../../Assets/arrow.svg";
 import "../home.css";
 
-import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+
+import { withStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import MuiDialogContent from "@material-ui/core/DialogContent";
@@ -13,7 +14,21 @@ import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
 import { UserContext } from "../../../App";
 
-import DenseTable from "../ModalTable/ModalTable";
+import ModalTable from "../ModalTable/ModalTable";
+
+import DenseTable from "../ModalTable/denseTable";
+
+import { makeStyles } from "@material-ui/core/styles";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    "& > * + *": {
+      marginLeft: theme.spacing(2),
+    },
+  },
+}));
 
 const styles = (theme) => ({
   root: {
@@ -46,33 +61,38 @@ const DialogTitle = withStyles(styles)((props) => {
   );
 });
 
-const DialogContent = withStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-}))(MuiDialogContent);
-
-const DialogActions = withStyles((theme) => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(1),
-  },
-}))(MuiDialogActions);
-
 const AllReport = (props) => {
+  const classss = useStyles();
   const { state, dispatch } = useContext(UserContext);
 
   const [data, setData] = useState([]);
-  const [godownTransfer, setGodownTransfer] = useState("");
+  const [report, setReport] = useState("");
+
+  function findAverage(a, b) {
+    return parseFloat(a / b).toFixed(2);
+  }
+
+  const submitData = ()=>{
+    fetch("https://stormy-retreat-77015.herokuapp.com/item/getByDate")
+    .then((res) => res.json())
+    .then((result) => {
+      if (result.status === "success") {
+        console.log(result.data.groupedDate);
+        setData(result.data.groupedDate);
+      } else if (!result.data) {
+      }
+    });
+  }
+
+
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/item/getByDate")
+    fetch("https://stormy-retreat-77015.herokuapp.com/item/getByDate")
       .then((res) => res.json())
       .then((result) => {
         if (result.status === "success") {
           console.log(result.data.groupedDate);
           setData(result.data.groupedDate);
-          setGodownTransfer(result.data.groupedDate[0].allMovedCylinder);
         } else if (!result.data) {
         }
       });
@@ -83,13 +103,13 @@ const AllReport = (props) => {
 
   const handleClickOpen = (clickDate) => {
     setLoading(true);
-    fetch(`http://127.0.0.1:5000/item?dailyDate=${clickDate}`)
+    fetch(`https://stormy-retreat-77015.herokuapp.com/item?dailyDate[gte]=${clickDate}`)
       .then((res) => res.json())
       .then((result) => {
         if (result.status === "success") {
+          setReport(result.data.data);
+          console.log(result.data.data);
           setLoading(false);
-          setGodownTransfer(result.data);
-          console.log(result.data);
         } else if (!result.data) {
         }
       });
@@ -97,16 +117,17 @@ const AllReport = (props) => {
   };
   const handleClose = () => {
     setOpen(false);
+    setMobileView(true);
   };
-  var tzoffset = new Date().getTimezoneOffset() * 60000;
+  const [mobileView, setMobileView] = useState(true);
 
   return (
     <div className="allReportMain">
-      <div className="heading"></div>
-      {console.log(new Date(Date.now() - tzoffset).toISOString().split("T")[0])}
+      <div className="heading">All Reports</div>
       <div>
         {data.map((el, key) => (
           <div
+            key={key}
             onClick={() => {
               handleClickOpen(el._id.dailyDate.split("T")[0]);
             }}
@@ -115,8 +136,10 @@ const AllReport = (props) => {
             <div className="cardComponentInner">
               <div className="date">{el._id.dailyDate.split("T")[0]}</div>
               <div className="secondCardComp">
-                <img src={arrow} alt="arrow" className="arrow" />
-                <div className="number">{el.allMovedCylinder}</div>
+                {/* <img src={arrow} alt="arrow" className="arrow" /> */}
+                <div className="number">
+                  {parseFloat(el.addRate).toFixed(2)}
+                </div>
               </div>
             </div>
           </div>
@@ -125,26 +148,47 @@ const AllReport = (props) => {
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={open}
+          // fullScreen
+          maxWidth="90%"
         >
           {!loading ? (
             <div>
-              <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-                Report on 09-04-2021
-              </DialogTitle>
-              <DenseTable />
-              <DialogActions>
-                <Button
-                  autoFocus
-                  onClick={() => {
-                    handleClose();
-                  }}
-                  color="primary"
-                >
-                  EXPORT PDF
-                </Button>
-              </DialogActions>
+              <DialogTitle
+                id="customized-dialog-title"
+                onClose={handleClose}
+              ></DialogTitle>
+              {mobileView ? (
+                <div>
+                  <DenseTable report={report} />
+                  <Button
+                    style={{
+                      display: "flex",
+                      justifyContent: "centre",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                    }}
+                    onClick={() => {
+                      setMobileView(false);
+                    }}
+                  >
+                    Preview PDF
+                  </Button>
+                </div>
+              ) : (
+                <ModalTable report={report} />
+              )}
             </div>
-          ) : null}
+          ) : (
+            <div
+              style={{
+                overflow: "hidden",
+                padding: "5px",
+              }}
+              className={classss.root}
+            >
+              <CircularProgress />
+            </div>
+          )}
         </Dialog>
       </div>
     </div>
@@ -152,23 +196,3 @@ const AllReport = (props) => {
 };
 
 export default AllReport;
-
-{
-  /* <DialogContent dividers>
-            <Typography gutterBottom>
-              Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-              dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-              ac consectetur ac, vestibulum at eros.
-            </Typography>
-            <Typography gutterBottom>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur
-              et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-              auctor.
-            </Typography>
-            <Typography gutterBottom>
-              Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-              cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
-              dui. Donec ullamcorper nulla non metus auctor fringilla.
-            </Typography>
-          </DialogContent> */
-}

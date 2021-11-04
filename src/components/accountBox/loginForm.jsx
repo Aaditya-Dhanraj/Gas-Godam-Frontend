@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { UserContext } from "../../App";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import {
   BoldLink,
   BoxContainer,
@@ -15,7 +15,8 @@ import { AccountContext } from "./accountContext";
 import Notification from "../Home/Notification/Notification";
 
 function LoginForm(props) {
-  const [noti, setNoti] = useState(false);
+  const [noti, setNoti] = useState({ status: "", message: "", trigger: false });
+  // const [status, setStatus] = useState("");
   const { switchToSignup, switchToHome } = useContext(AccountContext);
   const { state, dispatch } = useContext(UserContext);
   const history = useHistory();
@@ -24,7 +25,7 @@ function LoginForm(props) {
   const [password, setPassword] = useState("test1234");
 
   const sendDataLogin = () => {
-    fetch("http://127.0.0.1:5000/user/login", {
+    fetch("https://stormy-retreat-77015.herokuapp.com/user/login", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -38,30 +39,40 @@ function LoginForm(props) {
       .then((data) => {
         // console.log(data.data.user);
         if (data.status === "success") {
-          // M.toast({
-          //   html: "Logged-In successfully}",
-          //   classes: "#43a047 green darken-1",
-          // });
-          // console.log("dataLoginForm",data.data);
           localStorage.setItem("jwt", data.token);
           localStorage.setItem("user", JSON.stringify(data.data.user));
           dispatch({ type: "USER", payload: data.data.user });
-          setNoti(true);
+          // setStatus("success");
+          setNoti({
+            status: "success",
+            message: "LoggedIn Successfully",
+            trigger: "true",
+          });
           setTimeout(() => {
             history.push("/report");
           }, 2500);
         } else if (data.status === "Fail") {
           if (data.error) {
-            // M.toast({
-            //   html: data.message,
-            //   classes: "#c62828 red darken-1",
-            // });
+            setNoti({
+              status: "error",
+              message: "ERROR 404",
+              trigger: "true",
+            });
+          }
+        }else if (data == null) {
+          if (data.error) {
+            setNoti({
+              status: "error",
+              message: "ERROR 404",
+              trigger: "true",
+            });
           }
         } else {
-          // M.toast({
-          //   html: "Please check your network connection",
-          //   classes: "#c62828 red darken-1",
-          // });
+          setNoti({
+            status: "warning",
+            message: "Please turn on Mobile Data or WiFi",
+            trigger: "true",
+          });
         }
       });
   };
@@ -69,10 +80,10 @@ function LoginForm(props) {
   return (
     <div>
       <Notification
-        type="success"
+        type={noti.status}
         time={2000}
-        message="Logged In Successfully"
-        trigger={noti}
+        message={noti.message}
+        trigger={noti.trigger}
       />
       <BoxContainer>
         <FormContainer>

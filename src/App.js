@@ -8,8 +8,6 @@ import styled from "styled-components";
 import { AccountBox } from "./components/accountBox";
 import { reducer, initialState } from "./Reducers/reducer";
 
-
-
 export const UserContext = createContext();
 
 const AppContainer = styled.div`
@@ -36,7 +34,7 @@ const Routing = () => {
   return (
     <Switch>
       <Route exact path="/report">
-        <Example />
+        <Example  />
         <AllReport />
       </Route>
       <Route exact path="/login">
@@ -56,12 +54,9 @@ const Routing = () => {
 };
 
 function App() {
-
-
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <UserContext.Provider value={{ state, dispatch }}>
-    
       <BrowserRouter>
         <Routing />
       </BrowserRouter>
